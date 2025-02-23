@@ -127,10 +127,6 @@ Json Json::ParseValue(const std::string& file, size_t& index, bool asArray /* = 
     return Json(object);
 }
 
-void Json::AddElement(const Json& json, bool asArray)
-{
-
-}
 
 
 std::string Json::GetNextKey(const std::string& file, size_t& index)

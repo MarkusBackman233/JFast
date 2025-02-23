@@ -34,7 +34,6 @@ public:
 	bool AsBool();
 
 private:
-	void AddElement(const Json& json, bool asArray = false);
 	std::variant<Object, Array, std::string, float, bool> m_value;
 };
 
