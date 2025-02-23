@@ -64,7 +64,7 @@ int main()
 Since arrays are stored as `std::vector<Json>`, they can be iterated easily:
 
 ```cpp
-for (const auto& item : j["Children"].AsArray())
+for (const Json& item : j["Children"].AsArray())
 {
     std::string childName = item.AsString();
 }
