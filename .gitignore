@@ -1,3 +1,7 @@
 x64/
 JFast/
 .vs/
+JFast.sln
+JFast
+JFast.vcxproj.filters
+JFast.vcxproj.user
