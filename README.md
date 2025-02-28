@@ -32,7 +32,7 @@ Include the header in your project:
 
 int main()
 {
-    Json j = Json::Parse("C:\\Users\\Markus\\Desktop\\test.json");
+    Json j = Json::Parse("test.json");
     
     std::string name = j["Name"].AsString();
     float age = j["Age"].AsFloat();
