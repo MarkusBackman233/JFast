@@ -35,7 +35,7 @@ int main()
     Json j = Json::ParseFile("test.json");
     
     std::string name = j["Name"].AsString();
-    float age = j["Age"].AsFloat();
+    float age = j["Age"].AsInt();
     return 0;
 }
 ```
