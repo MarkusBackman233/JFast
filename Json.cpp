@@ -1,9 +1,9 @@
 #include "Json.h"
 #include <fstream>
 #include <iostream>
+#include <sstream>
 
-
-Json Json::Parse(const std::string& file)
+Json Json::ParseFile(const std::string& file)
 {
     std::ifstream f(file);
     if (!f)
@@ -17,6 +17,99 @@ Json Json::Parse(const std::string& file)
     Json json = ParseValue(data, index);
 
     return std::move(json);
+}
+
+void Json::Serialize(const Json& json, const std::string& file)
+{
+
+    std::ofstream outFile(file);
+    if (outFile.is_open()) 
+    {
+        outFile << json.JsonToString(0);
+        outFile.close();
+    }
+    else 
+    {
+        std::cerr << "Failed to open file for writing!" << std::endl;
+    }
+}
+
+std::string Json::JsonToString(int indent) const
+{
+    const std::string indentA(indent * 4, ' ');
+    const std::string innerIndentA((indent + 1) * 4, ' ');
+
+
+    if (std::holds_alternative<std::string>(m_value))
+    {
+        return std::string("\"" + AsString() + "\"");
+    }
+    if (std::holds_alternative<float>(m_value)) 
+    {
+        return std::to_string(AsFloat());
+    }        
+    if (std::holds_alternative<int>(m_value)) 
+    {
+        return std::to_string(AsInt());
+    }    
+    if (std::holds_alternative<bool>(m_value)) 
+    {
+        return AsBool() ? "true" : "false";
+    }       
+    if (std::holds_alternative<Array>(m_value)) 
+    {
+        std::ostringstream stream{};
+        stream << "[\n";
+
+        bool isFirst = true;
+
+        for (auto& json : AsArray())
+        {
+            if (isFirst)
+            {
+                isFirst = false;
+            }
+            else
+            {
+                stream << ",\n";
+            }
+            stream << innerIndentA  << json.JsonToString(indent + 1);
+        }
+        stream << "\n";
+
+        stream << indentA << "]";
+        return stream.str();
+    }    
+    if (std::holds_alternative<Object>(m_value)) 
+    {
+        std::ostringstream stream{};
+        stream <<"{\n";
+
+        bool isFirst = true;
+
+        for (auto& [key, json] : AsObject())
+        {
+            if (isFirst)
+            {
+                isFirst = false;
+            }
+            else
+            {
+                stream << ",\n";
+            }
+            stream << innerIndentA << "\"" << key << "\": " << json.JsonToString(indent + 1);
+        }
+        stream << "\n";
+
+        stream << indentA <<"}";
+        return stream.str();
+    }
+}
+
+Json Json::ParseString(const std::string& string)
+{
+    size_t index = 0;
+    return std::move(ParseValue(string, index));
 }
 
 void Json::SkipWhitespace(const std::string& file, size_t& index)
@@ -51,8 +144,6 @@ Json Json::ParseValue(const std::string& file, size_t& index, bool asArray /* = 
         if (asArray)
         {
             SkipWhitespace(file, index);
-
-            std::cout << file[index] << std::endl;
             if (file[index] == ']')
             {
                 break;
@@ -60,6 +151,10 @@ Json Json::ParseValue(const std::string& file, size_t& index, bool asArray /* = 
 
             index++;
             SkipWhitespace(file, index);
+            if (file[index] == ']')
+            {
+                break;
+            }
         }
         else
         {
@@ -72,7 +167,6 @@ Json Json::ParseValue(const std::string& file, size_t& index, bool asArray /* = 
             index++; // skip the ":"
             SkipWhitespace(file, index);
         }
-
 
         switch (file[index])
         {
@@ -106,10 +200,17 @@ Json Json::ParseValue(const std::string& file, size_t& index, bool asArray /* = 
                 for (size_t i = index; i < file.size(); i++)
                 {
                     char ch = file[i];
+
                     if (isdigit(ch) == false && ch != '.' && ch != '-')
                     {
                         std::string contents(file.data() + index, i - index );
-                        index = i ;
+                        if (contents.find('.') == std::string::npos) // if its an int not a float
+                        {
+                            index = i;
+                            AddItem(key, Json(std::stoi(contents)));
+                            break;
+                        }
+                        index = i;
                         AddItem(key, Json(std::stof(contents)));
                         break;
                     }
@@ -126,8 +227,6 @@ Json Json::ParseValue(const std::string& file, size_t& index, bool asArray /* = 
 
     return Json(object);
 }
-
-
 
 std::string Json::GetNextKey(const std::string& file, size_t& index)
 {
@@ -167,27 +266,32 @@ Json Json::operator[](const std::string& key)
     return AsObject().find(key)->second;
 }
 
-const std::string& Json::AsString()
+const std::string& Json::AsString() const
 {
     return std::get<std::string>(m_value);
 }
 
-Json::Object& Json::AsObject()
+const Json::Object& Json::AsObject() const
 {
     return std::get<Json::Object>(m_value);
 }
 
-Json::Array& Json::AsArray()
+const Json::Array& Json::AsArray() const
 {
     return std::get<Json::Array>(m_value);
 }
 
-float Json::AsFloat()
+const float Json::AsFloat() const
 {
     return std::get<float>(m_value);
 }
 
-bool Json::AsBool()
+const int Json::AsInt() const
+{
+    return std::get<int>(m_value);
+}
+
+const bool Json::AsBool() const
 {
     return std::get<bool>(m_value);
 }

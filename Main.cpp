@@ -1,12 +1,21 @@
 #include <iostream>
-
 #include "Json.h"
 
 int main()
 {
-    auto j = Json::Parse("C:\\Users\\Markus\\Desktop\\test.json");
+    Json::Object obj = {
+        {"name", "John Doe"},
+        {"age", 30},
+        {"is_student", false},
+        {"address", Json::Object{
+            {"street", "123 Main St"},
+            {"city", "Somewhere"},
+            {"zipcode", "12345"}
+        }},
+    };
+    obj.emplace("married", false);
+    obj.emplace("children", Json::Array{});
 
-    std::cout << j["Name"].AsString() << std::endl;
-    std::cout << j["Age"].AsFloat() << std::endl;
+    Json::Serialize(obj, "test.json");
     return 0;
 }
