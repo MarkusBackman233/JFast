@@ -40,10 +40,34 @@ int main()
 }
 ```
 
+### Writing a JSON file
+
+```cpp
+#include "Json.h"
+
+int main()
+{
+    Json::Object j = {
+        {"name", "John Doe"},
+        {"age", 30},
+        {"address", Json::Object{
+            {"street", "123 Main St"},
+            {"city", "Somewhere"},
+        }},
+    };
+    // or
+    j.emplace("married", false);
+    j.emplace("children", Json::Array{});
+
+    Json::Serialize(j, "test.json");
+}
+```
+
 ### Supported Data Types
 
 - **Strings**: `AsString()`
-- **Numbers**: `AsFloat()`
+- **Float**: `AsFloat()`
+- **Int**: `AsInt()`
 - **Booleans**: `AsBool()`
 - **Objects**: `AsObject()`
 - **Arrays**: `AsArray()`
