@@ -14,7 +14,7 @@ Clone the repository and include `Json.h` and `Json.cpp` in your project.
 
 ```sh
 # Clone the repository
-git clone https://github.com/yourusername/json-parser.git
+git clone https://github.com/MarkusBackman233/JFast
 ```
 
 Include the header in your project:
